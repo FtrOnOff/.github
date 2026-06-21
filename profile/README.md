@@ -1,6 +1,6 @@
 # FtrOnOff
 
-Feature toggle ecosystem for .NET — gate method execution from config with zero `if` statements, compile-time safety, a self-hosted management UI, CLI audit tooling, and GitHub Actions for CI/CD safety.
+Feature toggle ecosystem for .NET — gate method execution from config with zero `if` statements, compile-time safety, a self-hosted management UI, CLI audit tooling, and GitHub Actions for deployment safety.
 
 ## The FtrIO Ecosystem
 
@@ -12,10 +12,11 @@ Feature toggle ecosystem for .NET — gate method execution from config with zer
 
 ## GitHub Actions
 
+Two actions that together gate deployments on missing toggle config — catching the gap between what your code needs and what a specific environment actually has configured.
+
 | Action | What it does | Use in |
 |---|---|---|
-| [ftrio-action](https://github.com/FtrOnOff/ftrio-action) | Audit toggle state in CI. Fails the build if any `MISSING` toggles are found — toggle in code but not in config. | CI pipeline |
-| [export-manifest-action](https://github.com/FtrOnOff/export-manifest-action) | Scan source code for `[Toggle]` usage and export a manifest of required toggle keys. First step in the deployment safety pipeline. | CI pipeline |
+| [export-manifest-action](https://github.com/FtrOnOff/export-manifest-action) | Scan source code for `[Toggle]` usage and export a manifest of required toggle keys. | CI pipeline |
 | [release-check-action](https://github.com/FtrOnOff/release-check-action) | Validate a target `appsettings.json` contains every toggle key required by this release. Blocks the deploy if anything is missing. | Deployment pipeline |
 
 ## How they fit together
@@ -42,17 +43,15 @@ Feature toggle ecosystem for .NET — gate method execution from config with zer
   (web UI — manage toggles)     (CLI — audit state)
 ```
 
-### CI/CD safety pipeline
+### Deployment safety pipeline
 
 ```
 CI pipeline                          Deployment pipeline
 ────────────────────────────────     ──────────────────────────────────
-ftrio-action                         release-check-action
-Audit toggle state on every PR       Gate deployment on missing config
-
 export-manifest-action           →   release-check-action
-Export required toggle keys           Validate target appsettings.json
-Upload as build artifact              Block deploy if any keys missing
+Scan source for [Toggle] keys         Download manifest artifact
+Upload as build artifact              Fetch target appsettings.json
+                                      Block deploy if any keys missing
 ```
 
 No coupling between tools. Use any combination without changing your FtrIO core setup.
@@ -64,9 +63,9 @@ FtrIO catches toggle config drift at every stage of the pipeline:
 | Stage | What catches it |
 |---|---|
 | Write `[Toggle]` without config entry | Roslyn analyzer — compile time |
-| Push PR with missing key | `ftrio-action` — CI time |
 | Release with key missing from target env | `release-check-action` — deploy time |
 
 ## Docs
 
 Full documentation at **[ftronoff.github.io/FtrIO](https://ftronoff.github.io/FtrIO/)** — quick start, async, hot-reload, providers, strategies, multi-environment, DI, analyzer, and the full ecosystem.
+tronoff.github.io/FtrIO](https://ftronoff.github.io/FtrIO/)** — quick start, async, hot-reload, providers, strategies, multi-environment, DI, analyzer, and the full ecosystem.

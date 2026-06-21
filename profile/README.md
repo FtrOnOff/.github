@@ -1,6 +1,6 @@
 # FtrOnOff
 
-Feature toggle ecosystem for .NET — gate method execution from config with zero `if` statements, compile-time safety, a self-hosted management UI, and CLI audit tooling.
+Feature toggle ecosystem for .NET — gate method execution from config with zero `if` statements, compile-time safety, a self-hosted management UI, CLI audit tooling, and GitHub Actions for CI/CD safety.
 
 ## The FtrIO Ecosystem
 
@@ -8,7 +8,15 @@ Feature toggle ecosystem for .NET — gate method execution from config with zer
 |---|---|---|
 | [FtrIO](https://github.com/FtrOnOff/FtrIO) | Core library. Decorate any method with `[Toggle]` and it becomes config-gated via IL weaving — no `if`, no boilerplate, no wrapper classes. Ships a Roslyn analyzer for compile-time validation, percentage rollouts, blue-green deployments, and dynamic providers (HTTP, Azure App Config, env vars). | `dotnet add package FtrIO` |
 | [FtrIO.Toaster](https://github.com/FtrOnOff/FtrIO.Toaster) | Lightweight Docker web UI for managing toggles live. Boolean, percentage, and blue-green controls, multi-environment support, audit log, and Basic Auth / SSO via OAuth2 Proxy. | `docker compose up -d` |
-| [FtrIO.onetwo](https://github.com/FtrOnOff/FtrIO.onetwo) | .NET CLI audit tool. Scans your source tree for every toggle reference, cross-references against `appsettings.json`, and reports each toggle's state — `ON`, `OFF`, `20%`, `BLUE`, or `MISSING` — with file and line number. | `ftrio-onetwo` |
+| [FtrIO.onetwo](https://github.com/FtrOnOff/FtrIO.onetwo) | .NET CLI audit tool. Scans your source tree for every toggle reference, cross-references against `appsettings.json`, and reports each toggle's state — `ON`, `OFF`, `20%`, `BLUE`, or `MISSING` — with file and line number. Also supports importing flag state from LaunchDarkly, Flagsmith, and other providers, and generating migration reports. | `ftrio.onetwo` |
+
+## GitHub Actions
+
+| Action | What it does | Use in |
+|---|---|---|
+| [ftrio-action](https://github.com/FtrOnOff/ftrio-action) | Audit toggle state in CI. Fails the build if any `MISSING` toggles are found — toggle in code but not in config. | CI pipeline |
+| [export-manifest-action](https://github.com/FtrOnOff/export-manifest-action) | Scan source code for `[Toggle]` usage and export a manifest of required toggle keys. First step in the deployment safety pipeline. | CI pipeline |
+| [release-check-action](https://github.com/FtrOnOff/release-check-action) | Validate a target `appsettings.json` contains every toggle key required by this release. Blocks the deploy if anything is missing. | Deployment pipeline |
 
 ## How they fit together
 
@@ -17,7 +25,7 @@ Feature toggle ecosystem for .NET — gate method execution from config with zer
 │  Your code                                          │
 │  [Toggle] public void SendWelcomeEmail() { ... }    │
 └───────────────────┬─────────────────────────────────┘
-                    │ compile-time weaving
+                    │ compile-time weaving (Roslyn analyzer)
                     ▼
 ┌─────────────────────────────────────────────────────┐
 │  FtrIO core                                         │
@@ -34,7 +42,30 @@ Feature toggle ecosystem for .NET — gate method execution from config with zer
   (web UI — manage toggles)     (CLI — audit state)
 ```
 
-No coupling between tools. Toaster and onetwo both work against the same `appsettings.json` contract — use either, both, or neither without changing your FtrIO core setup.
+### CI/CD safety pipeline
+
+```
+CI pipeline                          Deployment pipeline
+────────────────────────────────     ──────────────────────────────────
+ftrio-action                         release-check-action
+Audit toggle state on every PR       Gate deployment on missing config
+
+export-manifest-action           →   release-check-action
+Export required toggle keys           Validate target appsettings.json
+Upload as build artifact              Block deploy if any keys missing
+```
+
+No coupling between tools. Use any combination without changing your FtrIO core setup.
+
+## The safety net
+
+FtrIO catches toggle config drift at every stage of the pipeline:
+
+| Stage | What catches it |
+|---|---|
+| Write `[Toggle]` without config entry | Roslyn analyzer — compile time |
+| Push PR with missing key | `ftrio-action` — CI time |
+| Release with key missing from target env | `release-check-action` — deploy time |
 
 ## Docs
 

@@ -67,5 +67,5 @@ FtrIO catches toggle config drift at every stage of the pipeline:
 
 ## Docs
 
-Full documentation at **[ftronoff.github.io/FtrIO](https://ftronoff.github.io/FtrIO/)** — quick start, async, hot-reload, providers, strategies, multi-environment, DI, analyzer, and the full ecosystem.
-tronoff.github.io/FtrIO](https://ftronoff.github.io/FtrIO/)** — quick start, async, hot-reload, providers, strategies, multi-environment, DI, analyzer, and the full ecosystem.
+Full documentation at **[https://docs.ftrio.dev](https://docs.ftrio.dev)** — quick start, async, hot-reload, providers, strategies, multi-environment, DI, analyzer, and the full ecosystem. 
+

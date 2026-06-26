@@ -8,7 +8,7 @@ Feature toggle ecosystem for .NET — gate method execution from config with zer
 |---|---|---|
 | [FtrIO](https://github.com/FtrOnOff/FtrIO) | Core library. Decorate any method with `[Toggle]` and it becomes config-gated via IL weaving — no `if`, no boilerplate, no wrapper classes. Ships a Roslyn analyzer for compile-time validation, percentage rollouts, blue-green deployments, and dynamic providers (HTTP, Azure App Config, env vars). | `dotnet add package FtrIO` |
 | [FtrIO.Toaster](https://github.com/FtrOnOff/FtrIO.Toaster) | Lightweight Docker web UI for managing toggles live. Boolean, percentage, and blue-green controls, multi-environment support, audit log, and Basic Auth / SSO via OAuth2 Proxy. | `docker compose up -d` |
-| [FtrIO.onetwo](https://github.com/FtrOnOff/FtrIO.onetwo) | .NET CLI audit tool. Scans your source tree for every toggle reference, cross-references against `appsettings.json`, and reports each toggle's state — `ON`, `OFF`, `20%`, `BLUE`, or `MISSING` — with file and line number. Also supports importing flag state from LaunchDarkly, Flagsmith, and other providers, and generating migration reports. | `ftrio.onetwo` |
+| [FtrIO.onetwo](https://github.com/FtrOnOff/FtrIO.onetwo) | .NET CLI audit tool. Scans your source tree for every toggle reference, cross-references against `appsettings.json`, and reports each toggle's state — `ON`, `OFF`, `20%`, `BLUE`, or `MISSING` — with file and line number. Also supports importing flag state from LaunchDarkly, Flagsmith, and other providers, generating migration reports, and ejecting back to another provider with a structured exit report. | `ftrio.onetwo` |
 
 ## GitHub Actions
 
